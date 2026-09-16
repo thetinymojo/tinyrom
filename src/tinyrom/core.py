@@ -19,10 +19,20 @@ class TinyRom:
 
     def raw(self, name: str) -> np.ndarray:
         table = self.tables[name]
-        shape = tuple(table["shape"])
+        shape = rows, cols = tuple(table["shape"])
         dtype = np.dtype(table.get("datatype", "u1"))
-        count = shape[0] * shape[1]
-        return np.frombuffer(self.rom, dtype=dtype, count=count, offset=_addr(table["address"])).reshape(shape)
+        addr = _addr(table["address"])
+        elem = int(dtype.itemsize)
+        major = int(table.get("major_stride_bits") or 0)
+        minor = int(table.get("minor_stride_bits") or 0)
+        col = minor // 8 if minor > 0 else elem
+        if rows == 1 and major > 0:  # TunerPro 1xN: major = cell step
+            col = major // 8
+        row = major // 8 if major > 0 and rows > 1 else col * cols
+        last = addr + (rows - 1) * row + (cols - 1) * col + elem
+        if last > len(self.rom):
+            raise ValueError(f"{name} stride view ends at {last}, ROM size {len(self.rom)}")
+        return np.ndarray(shape, dtype, self.rom, addr, (row, col))
 
     def get_map(self, name: str) -> np.ndarray:
         table = self.tables[name]

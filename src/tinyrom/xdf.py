@@ -192,6 +192,8 @@ def parse_table(node: ET.Element, categories: dict[str, str]) -> dict[str, Any]:
         "address": z_axis.get("address"),
         "shape": [z_axis.get("rows", 1), z_axis.get("cols", 1)],
         "datatype": z_axis.get("datatype", "u1"),
+        "major_stride_bits": z_axis.get("major_stride_bits", 0),
+        "minor_stride_bits": z_axis.get("minor_stride_bits", 0),
         "factor": z_axis.get("factor", 1.0),
         "offset": z_axis.get("offset", 0.0),
         "units": z_axis.get("units"),
@@ -234,6 +236,16 @@ def write_string_list(lines: list[str], key: str, values: list[str]) -> None:
     lines.append(f"{key} = [{rendered}]")
 
 
+def write_stride_bits(lines: list[str], meta: dict[str, Any], prefix: str = "") -> None:
+    key = f"{prefix}." if prefix else ""
+    major = meta.get("major_stride_bits", 0) or 0
+    minor = meta.get("minor_stride_bits", 0) or 0
+    if major > 0:
+        lines.append(f"{key}major_stride_bits = {major}")
+    if minor > 0:
+        lines.append(f"{key}minor_stride_bits = {minor}")
+
+
 def write_axis(lines: list[str], prefix: str, axis: dict[str, Any] | None) -> None:
     if not axis:
         return
@@ -247,6 +259,7 @@ def write_axis(lines: list[str], prefix: str, axis: dict[str, Any] | None) -> No
     lines.append(f"{prefix}.decimal_places = {axis.get('decimal_places', 0)}")
     lines.append(f"{prefix}.factor = {axis.get('factor', 1.0)!r}")
     lines.append(f"{prefix}.offset = {axis.get('offset', 0.0)!r}")
+    write_stride_bits(lines, axis, prefix)
 
     labels = axis.get("labels") or []
     if labels:
@@ -278,6 +291,7 @@ def render_toml(definition_title: str, tables: list[dict[str, Any]], flags: list
             lines.append(f'address = {toml_string(table["address"])}')
         lines.append(f"shape = [{table['shape'][0]}, {table['shape'][1]}]")
         lines.append(f'datatype = {toml_string(table["datatype"])}')
+        write_stride_bits(lines, table)
         lines.append(f"factor = {table['factor']!r}")
         lines.append(f"offset = {table['offset']!r}")
         if table.get("units"):
