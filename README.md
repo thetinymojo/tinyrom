@@ -1,38 +1,14 @@
 # tinyrom
 
-tinyrom is a brutalist, math-first ROM calibration core. It keeps the engine small, deterministic, and local: load ROM bytes, project NumPy views over them, apply `Real World = (Raw * Factor) + Offset`, and save the result.
+A ROM map library in under 60 lines.
 
-The core engine is intentionally tiny: `src/tinyrom/core.py` is under 100 lines and does only the essential work.
+Load the bin, slice tables as NumPy views, do `real = raw * factor + offset`, save. That's `src/tinyrom/core.py`. The rest is import.
 
-## Philosophy
-
-tinyrom keeps calibration work close to the bytes and close to the math. The project favors plain files, direct memory views, and deterministic transformations that are easy to inspect.
-
-- Zero bloat, zero-copy.
-- TOML as the working schema.
-- Deterministic Python math instead of opaque tooling behavior.
-- Local-first workflows.
-
-The guiding formula stays:
-
-```text
-Real World = (Raw * Factor) + Offset
-```
-
-## Repository Layout
-
-Public source and fixtures live here:
-
-- `src/tinyrom/` contains the package surface for contributors.
-- `examples/` contains synthetic or redistributable fixtures.
-- `tests/` contains regression tests for the core.
-- `docs/TINYROM_CONTRACT.md` defines the core library contract.
-
-Compatibility scripts remain at the repo root while the project is being cleaned up, but contributors should treat `src/tinyrom/` as the durable package home.
+TOML is the working schema. XDF XML converts in. No UI, no flash, no tuner policy.
 
 ## Quickstart
 
-Use Python 3.11 or newer:
+Use Python 3.11 or newer (`python3` on Unix, `py` on Windows):
 
 ```bash
 python3 --version
@@ -65,24 +41,9 @@ python3 examples/patch_copy.py
 Convert a TunerPro XDF XML export into tinyrom TOML (synthetic fixture matches `definitions.toml`):
 
 ```bash
-tinyrom-xdf2toml examples/definitions.xdf /tmp/definitions.toml
+tinyrom-xdf2toml examples/definitions.xdf definitions.out.toml
 ```
-
-## Scope
-
-tinyrom owns:
-
-- ROM byte loading and saving
-- TOML-driven map math
-- XDF XML to TOML conversion
-
-tinyrom does not own:
-
-- application workflows
-- user interfaces
-- project-specific tuning policy
-- flashing workflows
 
 ## Open Source Notes
 
-Do not commit proprietary ROMs, XDFs, passwords, vendor installers, or TunerPro artifacts. The public repo should contain source code, docs, tests, and clean fixtures only.
+Do not commit proprietary ROMs, XDFs, passwords, vendor installers, or TunerPro artifacts. Source, docs, tests, and clean fixtures only.

@@ -37,6 +37,8 @@ Useful checks:
 python3 -m unittest tests.test_core
 ```
 
+CI runs Ubuntu 3.11–3.14 and Windows 3.11.
+
 ## Fixtures
 
 Do not commit proprietary ROMs, XDFs, installers, passwords, or vendor binaries.

@@ -1,12 +1,13 @@
 from __future__ import annotations
 
+import tempfile
 from pathlib import Path
 
 from tinyrom import TinyRom
 
 
 HERE = Path(__file__).resolve().parent
-OUT = Path("/tmp/tinyrom-patched.bin")
+OUT = Path(tempfile.gettempdir()) / "tinyrom-patched.bin"
 
 
 def main() -> None:
